@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#2b1c12" />
+<title>Questlog V0.4</title>
+<style>
+:root{
+  --ink:#2d2117;
+  --muted:#6e5a44;
+  --paper:#e7cf9c;
+  --paper-2:#d9ba7d;
+  --paper-3:#f2dfb4;
+  --wood:#2a1b12;
+  --wood-2:#3a281a;
+  --gold:#b78a3c;
+  --gold-2:#ddb66a;
+  --red:#8b352e;
+  --green:#3f6b4d;
+  --blue:#3d5f7a;
+  --purple:#654a6c;
+  --line:rgba(74,49,28,.35);
+  --shadow:0 12px 28px rgba(26,16,9,.28);
+}
+*{box-sizing:border-box}
+html{background:#160f0a}
+body{
+  margin:0;
+  color:var(--ink);
+  font-family: Georgia, "Times New Roman", serif;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255,255,255,.03), transparent 22%),
+    linear-gradient(135deg,#24170f,#120c08 55%,#2b1c12);
+  min-height:100vh;
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.shell{
+  width:min(1420px,100%);
+  margin:0 auto;
+  padding:16px;
+}
+.frame{
+  background:
+    linear-gradient(rgba(255,255,255,.02),rgba(0,0,0,.05)),
+    repeating-linear-gradient(90deg,#2a1b12 0 16px,#2d1d12 16px 34px,#24170f 34px 50px);
+  border:1px solid #6e4b2c;
+  border-radius:22px;
+  box-shadow:0 22px 70px rgba(0,0,0,.45), inset 0 0 0 4px rgba(132,91,49,.24);
+  padding:14px;
+}
+.app{
+  display:grid;
+  grid-template-columns:240px minmax(0,1fr) 290px;
+  gap:14px;
+}
+.panel, .paper{
+  background:
+    radial-gradient(circle at 12% 18%, rgba(92,57,24,.09) 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 65%, rgba(92,57,24,.06) 0 1px, transparent 2px),
+    linear-gradient(180deg,rgba(255,255,255,.18),rgba(75,45,19,.06)),
+    var(--paper);
+  background-size:27px 27px,33px 33px,auto,auto;
+  border:1px solid #9d7846;
+  box-shadow:inset 0 0 26px rgba(80,50,25,.13);
+}
+.sidebar{
+  background:linear-gradient(#21160f,#342316);
+  color:#eadbb9;
+  border:1px solid #5a3e28;
+  border-radius:16px;
+  padding:14px;
+  min-width:0;
+}
+.brand{
+  text-align:center;
+  border-bottom:1px solid rgba(225,190,124,.25);
+  padding:10px 8px 16px;
+}
+.brand .crest{
+  width:64px;height:64px;margin:0 auto 8px;
+  border:2px solid #c69a4b;border-radius:50%;
+  display:grid;place-items:center;
+  font-size:30px;
+  box-shadow:inset 0 0 0 5px rgba(198,154,75,.12);
+}
+.brand h2{margin:0;font-size:24px;letter-spacing:.04em;color:#f1d99b}
+.level{font-size:14px;color:#d7c199;margin-top:6px}
+.xpbar{
+  height:11px;border:1px solid #9f7a43;border-radius:999px;
+  overflow:hidden;background:#17100c;margin-top:10px
+}
+.xpbar > span{
+  display:block;height:100%;
+  background:linear-gradient(90deg,#5a8ab1,#91bfd7);
+  width:0%;
+  transition:width .35s ease;
+}
+.xpline{display:flex;justify-content:space-between;font-size:12px;color:#d8c9a6;margin-top:6px}
+.nav{display:grid;gap:8px;margin-top:14px}
+.nav button{
+  width:100%;text-align:left;padding:11px 12px;border-radius:10px;
+  color:#e6d7b4;background:transparent;border:1px solid transparent
+}
+.nav button.active,.nav button:hover{
+  background:linear-gradient(90deg,rgba(194,148,73,.18),rgba(194,148,73,.05));
+  border-color:rgba(194,148,73,.35);color:#ffe4a7
+}
+.quote{
+  margin-top:18px;
+  color:#dbc9a2;font-style:italic;font-size:14px;line-height:1.5;
+  border-top:1px solid rgba(225,190,124,.2);padding-top:16px
+}
+.main{min-width:0}
+.hero{
+  border-radius:16px 16px 8px 8px;
+  padding:20px 24px;
+  position:relative;
+  overflow:hidden;
+}
+.hero:after{
+  content:"";position:absolute;right:-40px;top:-28px;width:220px;height:150px;
+  border-radius:50%;
+  border:1px solid rgba(81,53,28,.12);
+  transform:rotate(-12deg);
+}
+.hero h1{
+  margin:0;font-size:clamp(38px,7vw,68px);
+  font-variant:small-caps;letter-spacing:.03em;
+  line-height:.95;text-shadow:0 1px 0 #f8e7bd
+}
+.hero p{margin:8px 0 0;color:var(--muted);font-style:italic}
+.section{
+  margin-top:12px;border-radius:12px;padding:16px;
+}
+.section-title{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  margin-bottom:12px
+}
+.section-title h3{margin:0;font-size:24px}
+.subtitle{color:var(--muted);font-size:14px}
+.route-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.quest-card{
+  background:linear-gradient(180deg,#edd7a6,#dfc48c);
+  border:1px solid #a8824f;border-radius:10px;
+  padding:14px;position:relative;box-shadow:0 8px 18px rgba(74,47,22,.12);
+  min-width:0
+}
+.quest-card::before{
+  content:"";position:absolute;left:0;right:0;top:0;height:4px;border-radius:10px 10px 0 0;
+  background:var(--type-color,#8b352e)
+}
+.quest-head{display:flex;justify-content:space-between;gap:10px}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 8px;
+  font-size:12px;background:rgba(255,255,255,.28);border:1px solid rgba(70,45,23,.12)
+}
+.quest-card h4{font-size:19px;margin:10px 0 6px;line-height:1.15}
+.quest-card p{font-size:14px;line-height:1.42;color:#594630;margin:0}
+.stats{display:grid;gap:5px;margin:12px 0;font-size:12px;color:#5a4631}
+.statrow{display:flex;justify-content:space-between;gap:10px}
+.dots{letter-spacing:1px}
+.xp{
+  text-align:center;margin:12px 0 8px;font-size:24px;font-weight:bold;color:#5e361a;
+}
+.primary,.secondary,.ghost{
+  min-height:42px;border-radius:8px;padding:9px 12px;border:1px solid #6f4d2c;
+}
+.primary{
+  width:100%;color:#f7e8c6;background:linear-gradient(#5b3a22,#3e2818);
+  box-shadow:inset 0 0 0 2px rgba(220,176,99,.12)
+}
+.secondary{color:#3c2b1c;background:#e1c58d}
+.ghost{color:#ead9b6;background:transparent;border-color:rgba(230,202,151,.28)}
+.list-toolbar{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;
+  margin-bottom:10px
+}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filter{
+  border:1px solid #a27d4b;background:#d8bc86;color:#4a3625;border-radius:7px;padding:7px 10px
+}
+.filter.active{background:#513521;color:#f6e4bd}
+.quest-list{display:grid;gap:8px}
+.row{
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:10px;align-items:center;
+  background:rgba(255,255,255,.16);border:1px solid rgba(105,75,42,.25);
+  border-radius:9px;padding:10px
+}
+.seal{
+  width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  color:#f6e8cc;font-weight:bold;background:var(--type-color,#8b352e);
+  box-shadow:inset 0 0 0 3px rgba(255,255,255,.08)
+}
+.row h5{margin:0 0 2px;font-size:15px}.row p{margin:0;color:#6a5339;font-size:12px}
+.row .xpmini{font-weight:bold;white-space:nowrap}
+.row.done{opacity:.55}.row.done h5{text-decoration:line-through}
+.right{
+  display:grid;gap:12px;align-content:start;min-width:0
+}
+.status-card,.mini-card{
+  border-radius:12px;padding:14px
+}
+.status-card h3,.mini-card h3{margin:0 0 12px;font-size:21px}
+.control{margin:12px 0}
+.control label{display:flex;justify-content:space-between;gap:10px;font-size:14px}
+input[type=range]{width:100%;accent-color:#705032}
+select,input[type=text],input[type=number],textarea{
+  width:100%;border:1px solid #a27d4b;border-radius:8px;background:#f0dcae;
+  color:#392819;padding:10px;min-height:42px
+}
+.small-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.metric{padding:10px;border-top:1px solid rgba(84,57,30,.15);display:flex;justify-content:space-between}
+.mode{
+  margin-top:12px;padding:10px;border-radius:9px;background:rgba(90,59,31,.08);
+  font-style:italic;font-size:13px;line-height:1.4
+}
+.milestone{
+  text-align:center;padding:10px;border:1px dashed #9d7846;border-radius:10px
+}
+.milestone .big{font-size:30px;font-weight:bold;margin:7px 0}
+.fab{
+  width:100%;margin-top:10px;
+  background:linear-gradient(#7e512d,#4d321e);
+  color:#f6e9c9;border:1px solid #3a2618;border-radius:9px;padding:11px
+}
+.modal{
+  position:fixed;inset:0;background:rgba(13,8,5,.72);display:none;place-items:center;padding:20px;z-index:20
+}
+.modal.open{display:grid}
+.modal-card{
+  width:min(560px,100%);max-height:90vh;overflow:auto;border-radius:14px;padding:18px
+}
+.modal-card h3{margin-top:0;font-size:26px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-row{display:grid;gap:6px;margin-bottom:10px}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.toast{
+  position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);
+  background:#2b1d13;color:#f2e2c0;border:1px solid #8a6339;padding:11px 14px;border-radius:9px;
+  opacity:0;pointer-events:none;transition:.25s;z-index:30;box-shadow:var(--shadow)
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty{padding:20px;text-align:center;color:#6d563a;font-style:italic}
+@media(max-width:1100px){
+  .app{grid-template-columns:210px minmax(0,1fr)}
+  .right{grid-column:1/-1;grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:760px){
+  .shell{padding:8px}.frame{padding:8px;border-radius:14px}
+  .app{grid-template-columns:1fr}
+  .sidebar{order:1}.main{order:2}.right{order:3;grid-template-columns:1fr}
+  .nav{grid-template-columns:repeat(2,1fr)}
+  .quote{display:none}
+  .route-grid{grid-template-columns:1fr}
+  .row{grid-template-columns:auto minmax(0,1fr) auto}
+  .row .row-action{grid-column:2/-1}
+  .form-grid,.small-grid{grid-template-columns:1fr}
+}
+
+/* ===== V0.2: Ansichten / Charakter / Skilltree / Bosse / Tagebuch ===== */
+.view{display:none}
+.view.active{display:block}
+.nav button{display:flex;align-items:center;gap:8px}
+.dashboard-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.feature-card{
+  background:linear-gradient(180deg,#edd7a6,#dfc48c);
+  border:1px solid #a8824f;border-radius:10px;padding:14px;
+  box-shadow:0 8px 18px rgba(74,47,22,.10)
+}
+.feature-card h4{margin:0 0 7px;font-size:19px}
+.feature-card p{margin:0;color:#5f4a34;font-size:14px;line-height:1.45}
+.big-number{font-size:36px;font-weight:bold;color:#59371f;line-height:1}
+.progress{
+  height:10px;border-radius:999px;overflow:hidden;background:rgba(70,45,23,.14);
+  border:1px solid rgba(70,45,23,.18);margin-top:8px
+}
+.progress > span{
+  display:block;height:100%;background:linear-gradient(90deg,#6d4a2d,#b78a3c);
+  width:0%;transition:width .3s ease
+}
+.attribute-list{display:grid;gap:10px}
+.attribute-row{
+  display:grid;grid-template-columns:130px minmax(0,1fr) 45px;gap:10px;align-items:center
+}
+.skill-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.skill-node{padding:12px;border:1px solid rgba(95,65,35,.25);border-radius:9px;background:rgba(255,255,255,.14)}
+.skill-node.locked{opacity:.45;filter:grayscale(.4)}
+.skill-node .tier{font-size:12px;color:var(--muted);margin-bottom:4px}
+.boss-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.boss-card{
+  position:relative;overflow:hidden;padding:16px;border:1px solid #7b4b35;border-radius:12px;
+  background:linear-gradient(180deg,#e6c78e,#d7ad70)
+}
+.boss-card::before{
+  content:"";position:absolute;inset:0 0 auto 0;height:5px;background:#8b352e
+}
+.boss-card.active-boss{box-shadow:0 0 0 3px rgba(139,53,46,.18),0 12px 24px rgba(70,35,25,.18)}
+.boss-hp{margin:10px 0 12px}
+.boss-hp .progress > span{background:linear-gradient(90deg,#8b352e,#c96a58)}
+.journal-compose textarea{min-height:130px;resize:vertical}
+.journal-list{display:grid;gap:10px;margin-top:12px}
+.journal-entry{
+  border:1px solid rgba(105,75,42,.25);border-radius:9px;padding:12px;background:rgba(255,255,255,.14)
+}
+.journal-entry header{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.journal-entry h4{margin:0;font-size:17px}
+.journal-entry time{font-size:12px;color:var(--muted);white-space:nowrap}
+.journal-entry p{margin:8px 0 0;white-space:pre-wrap;line-height:1.5;color:#594630}
+.preset-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.preset{
+  border:1px solid #a27d4b;background:#d8bc86;color:#4a3625;border-radius:999px;padding:6px 9px;font-size:12px
+}
+.preset:hover{background:#cbaa70}
+.section-intro{margin:-4px 0 14px;color:var(--muted);font-size:14px;line-height:1.5}
+.focus-chip{
+  display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:999px;
+  background:rgba(139,53,46,.10);border:1px solid rgba(139,53,46,.25);font-size:12px;margin-top:8px
+}
+@media(max-width:900px){
+  .dashboard-grid,.skill-grid,.boss-grid{grid-template-columns:1fr}
+}
+@media(max-width:760px){
+  .attribute-row{grid-template-columns:100px minmax(0,1fr) 40px}
+}
+
+/* ===== V0.3: Mobile Compact / Accordion Route ===== */
+.route-compact{display:none}
+.compact-quest{
+  border:1px solid rgba(105,75,42,.25);border-radius:10px;overflow:hidden;
+  background:linear-gradient(180deg,#ecd49f,#dfc48c);
+  box-shadow:0 6px 14px rgba(74,47,22,.10);
+}
+.compact-quest + .compact-quest{margin-top:8px}
+.compact-summary{
+  width:100%;border:0;background:transparent;color:var(--ink);padding:11px 12px;
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;
+}
+.compact-summary .compact-icon{
+  width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+  color:#f6e8cc;background:var(--type-color,#8b352e);font-weight:bold;
+}
+.compact-summary .compact-title{font-weight:bold;font-size:14px;line-height:1.2}
+.compact-summary .compact-meta{font-size:11px;color:#6a5339;margin-top:2px}
+.compact-summary .chev{font-size:18px;transition:transform .2s ease;color:#6b4b2d}
+.compact-quest.open .chev{transform:rotate(180deg)}
+.compact-details{display:none;padding:0 12px 12px;border-top:1px solid rgba(105,75,42,.16)}
+.compact-quest.open .compact-details{display:block}
+.compact-details p{margin:10px 0;color:#594630;font-size:13px;line-height:1.4}
+.compact-details .stats{margin:8px 0 10px}
+.compact-details .xp{font-size:20px;margin:8px 0}
+.compact-tools{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px}
+.compact-tools .secondary{min-height:34px;padding:6px 9px;font-size:12px}
+.mobile-section-toggle{display:none}
+.mobile-section-body{display:block}
+
+@media(max-width:760px){
+  .shell{padding:5px}
+  .frame{padding:5px;border-radius:12px}
+  .hero{padding:14px 16px}
+  .hero h1{font-size:42px}
+  .hero p{font-size:13px}
+  .section{padding:12px;margin-top:8px}
+  .section-title{margin-bottom:8px}
+  .section-title h3{font-size:20px}
+  .subtitle{font-size:12px}
+  .route-grid{display:none}
+  .route-compact{display:block}
+  .sidebar{padding:10px}
+  .brand{padding:6px 6px 10px}
+  .brand .crest{width:48px;height:48px;font-size:24px}
+  .brand h2{font-size:20px}
+  .nav{gap:6px;margin-top:10px}
+  .nav button{padding:9px 10px;font-size:13px}
+  .right{gap:8px}
+  .status-card,.mini-card{padding:11px}
+  .status-card h3,.mini-card h3{font-size:18px;margin-bottom:8px}
+  .control{margin:9px 0}
+  .metric{padding:8px 4px;font-size:13px}
+  .fab{margin-top:8px;padding:9px}
+  .list-toolbar{gap:6px}
+  .filter{padding:6px 8px;font-size:12px}
+  #sortSelect{max-width:100%!important;font-size:12px;min-height:36px}
+  .row{grid-template-columns:auto minmax(0,1fr) auto;padding:8px;gap:8px}
+  .seal{width:30px;height:30px;font-size:13px}
+  .row h5{font-size:14px}
+  .row p{font-size:11px}
+  .row .xpmini{font-size:12px}
+  .row .row-action{display:none}
+  .mobile-section-toggle{display:inline-flex;align-items:center;gap:6px}
+  .mobile-section-body.collapsed{display:none}
+}
+
+
+
+/* ===== V0.4: Overview Hub + floating return button ===== */
+#overviewHub{scroll-margin-top:10px}
+.hub-return{
+  display:none;position:fixed;right:14px;bottom:max(18px,calc(env(safe-area-inset-bottom) + 12px));
+  width:44px;height:44px;border-radius:50%;z-index:40;
+  border:1px solid rgba(221,182,106,.55);background:rgba(31,20,13,.58);
+  color:#f0d79b;place-items:center;font-size:21px;
+  box-shadow:0 6px 18px rgba(0,0,0,.22),inset 0 0 0 4px rgba(183,138,60,.08);
+  -webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);
+  opacity:0;transform:translateY(8px) scale(.94);pointer-events:none;
+  transition:opacity .22s ease,transform .22s ease,background .2s ease;
+}
+.hub-return.show{opacity:.62;transform:translateY(0) scale(1);pointer-events:auto}
+.hub-return:active{opacity:.95;transform:scale(.94)}
+@media(max-width:760px){
+  .hub-return{display:grid}
+  .sidebar{margin-bottom:0}
+}
+@media(min-width:761px){.hub-return{display:none!important}}
+
+/* ===== V0.5: Mobile Density / readability pass ===== */
+@media(max-width:760px){
+  /* More content above the fold without changing the RPG structure */
+  .app{gap:7px}
+  .sidebar{border-radius:11px}
+  .brand{display:grid;grid-template-columns:42px minmax(0,1fr);column-gap:9px;align-items:center;text-align:left}
+  .brand .crest{grid-row:1/3;width:42px;height:42px;font-size:21px;margin:0}
+  .brand h2{font-size:18px;margin:0}
+  .brand p{font-size:11px;margin:2px 0 0}
+  .levelbox{margin:7px 0 4px;padding:7px}
+  .levelbox strong{font-size:13px}
+  .nav{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:7px}
+  .nav button{min-height:38px;padding:7px 6px;font-size:11px;justify-content:center}
+  .hero{padding:11px 13px}
+  .hero h1{font-size:34px;line-height:.95}
+  .hero p{margin-top:5px;font-size:12px}
+  .section{padding:10px;margin-top:7px}
+  .section-title h3{font-size:18px}
+  .section-title{gap:6px;margin-bottom:6px}
+  .compact-quest{border-radius:9px}
+  .compact-quest + .compact-quest{margin-top:6px}
+  .compact-summary{padding:8px 9px;gap:8px}
+  .compact-summary .compact-icon{width:27px;height:27px;font-size:13px}
+  .compact-summary .compact-title{font-size:13px}
+  .compact-summary .compact-meta{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .compact-summary .chev{font-size:16px}
+  .compact-details{padding:0 10px 10px}
+  .compact-details p{margin:8px 0;font-size:12px}
+  .compact-details .stats{font-size:11px;margin:7px 0}
+  .compact-details .xp{font-size:18px;margin:7px 0}
+  .compact-details .primary{min-height:38px;padding:7px 10px;font-size:13px}
+  .list-toolbar{margin-bottom:7px}
+  .filters{gap:4px}
+  .filter{padding:5px 7px;font-size:11px}
+  .row{padding:7px;gap:7px;border-radius:8px}
+  .row + .row{margin-top:5px}
+  .seal{width:27px;height:27px}
+  .row h5{font-size:13px;line-height:1.15}
+  .row p{margin-top:2px;font-size:10px;line-height:1.25}
+  .row .xpmini{font-size:11px}
+  .status-card,.mini-card{padding:9px}
+  .hub-return{width:40px;height:40px;right:10px;font-size:19px}
+}
+
+
+/* ===== V0.6: Character Attributes — stacked + ornamental separators ===== */
+.attribute-list{gap:0}
+.attribute-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:7px 12px;
+  align-items:end;
+  padding:13px 8px 18px;
+  position:relative;
+}
+.attribute-row > strong:first-child{grid-column:1;font-size:16px}
+.attribute-row > div{grid-column:1/-1;grid-row:2}
+.attribute-row > strong:last-child{grid-column:2;grid-row:1;text-align:right;color:#5e3b22}
+.attribute-row::after{
+  content:"✦  ·  ᚱ  ·  ✦";
+  position:absolute;
+  left:12%; right:12%; bottom:2px;
+  height:12px;
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(91,58,31,.46);
+  font-size:10px;letter-spacing:5px;
+  background:linear-gradient(90deg,transparent,rgba(91,58,31,.30) 22%,rgba(91,58,31,.30) 78%,transparent) center/100% 1px no-repeat;
+}
+.attribute-row:last-child::after{display:none}
+.attribute-row .progress{margin-top:0;height:12px}
+.attribute-row .subtitle{margin-top:5px;font-size:12px}
+@media(max-width:760px){
+  .attribute-row{grid-template-columns:1fr auto;padding:11px 4px 17px;gap:6px 9px}
+  .attribute-row > strong:first-child{font-size:14px}
+  .attribute-row::after{left:8%;right:8%;letter-spacing:3px}
+}
+
+</style>
+</head>
+<body>
+<button class="hub-return" id="hubReturn" type="button" aria-label="Zur Übersicht" title="Zur Übersicht">⛰</button>
+<div class="shell">
+  <div class="frame">
+    <div class="app">
+      <aside class="sidebar" id="overviewHub">
+        <div class="brand">
+          <div class="crest">⛰</div>
+          <h2 id="levelLabel">Level 1</h2>
+          <div class="level" id="rankLabel">Wanderer</div>
+          <div class="xpbar"><span id="xpFill"></span></div>
+          <div class="xpline"><span id="xpNow">0 XP</span><span id="xpNeed">/ 350 XP</span></div>
+        </div>
+        <div class="nav" id="mainNav">
+          <button class="active" data-view="questlog">⚔ Questlog</button>
+          <button data-view="character">♟ Charakter</button>
+          <button data-view="skills">✥ Skilltree</button>
+          <button data-view="bosses">☠ Bosse</button>
+          <button data-view="journal">📜 Tagebuch</button>
+          <button id="resetBtn">⚙ Reset</button>
+        </div>
+        <div class="quote">„Nicht das perfekte Leben ist das Ziel, sondern ein Leben, das sich nach dir anfühlt.“</div>
+      </aside>
+
+      <main class="main">
+        <div class="view active" id="view-questlog">
+        <section class="paper hero">
+          <h1>Questlog</h1>
+          <p>Kleine Schritte. Große Abenteuer.</p>
+        </section>
+
+        <section class="paper section">
+          <div class="section-title">
+            <div>
+              <h3>⚔ Deine heutige Route</h3>
+              <div class="subtitle" id="routeSubtitle">Basierend auf deinem aktuellen Zustand.</div>
+            </div>
+            <button class="secondary" id="rerollBtn">↻ Route neu würfeln</button>
+          </div>
+          <div class="route-grid" id="routeGrid"></div>
+           <div class="route-compact" id="routeCompact"></div>
+        </section>
+
+        <section class="paper section">
+          <div class="section-title">
+            <div>
+              <h3>✥ Alle Quests</h3>
+              <div class="subtitle">Dein Questboard – sortiert nach dem, was gerade sinnvoll ist.</div>
+            </div>
+            <button class="secondary" id="addQuestBtn">＋ Neue Quest</button>
+          </div>
+          <div class="list-toolbar">
+            <div class="filters" id="filters">
+              <button class="filter active" data-filter="all">Alle</button>
+              <button class="filter" data-filter="main">Main</button>
+              <button class="filter" data-filter="class">Class</button>
+              <button class="filter" data-filter="character">Character</button>
+              <button class="filter" data-filter="side">Side</button>
+            </div>
+            <select id="sortSelect" style="max-width:220px">
+              <option value="score">Sortieren: Empfehlung</option>
+              <option value="importance">Wichtigkeit</option>
+              <option value="xp">XP</option>
+              <option value="effort">Aufwand</option>
+            </select>
+          </div>
+          <div class="quest-list" id="questList"></div>
+        </section>
+
+        </div>
+
+        <div class="view" id="view-character">
+          <section class="paper hero">
+            <h1>Charakter</h1>
+            <p>Nicht perfekt werden. Deinen Build sichtbar machen.</p>
+          </section>
+          <section class="paper section">
+            <div class="section-title">
+              <div>
+                <h3>♟ Dein aktueller Build</h3>
+                <div class="subtitle">Wächst automatisch mit den Quests, die du wirklich erledigst.</div>
+              </div>
+            </div>
+            <div class="dashboard-grid">
+              <div class="feature-card">
+                <div class="subtitle">Aktueller Rang</div>
+                <div class="big-number" id="charLevel">Level 1</div>
+                <h4 id="charRank">Wanderer</h4>
+                <div class="progress"><span id="charXpFill"></span></div>
+                <p id="charXpText">0 / 350 XP</p>
+              </div>
+              <div class="feature-card">
+                <div class="subtitle">Abgeschlossene Abenteuer</div>
+                <div class="big-number" id="charDone">0</div>
+                <h4>Quests geschafft</h4>
+                <p>Jede erledigte Quest zählt als echter Fortschritt – auch kleine.</p>
+              </div>
+            </div>
+          </section>
+          <section class="paper section">
+            <div class="section-title"><h3>✦ Attribute</h3></div>
+            <p class="section-intro">Die Werte sind keine Bewertung deiner Person. Sie zeigen nur, welche Arten von Quests du bereits trainiert hast.</p>
+            <div class="attribute-list" id="attributeList"></div>
+          </section>
+        </div>
+
+        <div class="view" id="view-skills">
+          <section class="paper hero">
+            <h1>Skilltree</h1>
+            <p>Aus wiederholten kleinen Schritten werden Fähigkeiten.</p>
+          </section>
+          <section class="paper section">
+            <div class="section-title">
+              <div>
+                <h3>✥ Deine Pfade</h3>
+                <div class="subtitle">Neue Stufen schalten sich über erledigte Quests frei.</div>
+              </div>
+            </div>
+            <div class="skill-grid" id="skillGrid"></div>
+          </section>
+        </div>
+
+        <div class="view" id="view-bosses">
+          <section class="paper hero">
+            <h1>Bosse</h1>
+            <p>Große Themen werden nicht auf einmal besiegt – sondern in Phasen.</p>
+          </section>
+          <section class="paper section">
+            <div class="section-title">
+              <div>
+                <h3>☠ Bossboard</h3>
+                <div class="subtitle">Das System erkennt besonders wichtige oder belastende offene Quests.</div>
+              </div>
+            </div>
+            <p class="section-intro">Markiere einen Boss als Fokus. Seine Quest bekommt dann auf deiner täglichen Route einen deutlichen Empfehlungsbonus.</p>
+            <div class="boss-grid" id="bossGrid"></div>
+          </section>
+        </div>
+
+        <div class="view" id="view-journal">
+          <section class="paper hero">
+            <h1>Tagebuch</h1>
+            <p>Kurze Check-ins statt Pflichtroman.</p>
+          </section>
+          <section class="paper section journal-compose">
+            <div class="section-title">
+              <div>
+                <h3>📜 Neuer Eintrag</h3>
+                <div class="subtitle">Ein Satz reicht. Mehr ist optional.</div>
+              </div>
+            </div>
+            <div class="form-row">
+              <label for="journalTitle">Titel</label>
+              <input id="journalTitle" type="text" maxlength="80" placeholder="z. B. Heute war ...">
+            </div>
+            <div class="form-row">
+              <label for="journalText">Eintrag</label>
+              <textarea id="journalText" maxlength="1200" placeholder="Was soll dein zukünftiges Ich von heute wissen?"></textarea>
+            </div>
+            <button class="primary" id="saveJournalBtn">Eintrag speichern</button>
+          </section>
+          <section class="paper section">
+            <div class="section-title"><h3>⌛ Verlauf</h3></div>
+            <div class="journal-list" id="journalList"></div>
+          </section>
+        </div>
+
+      </main>
+
+      <aside class="right">
+        <section class="paper status-card">
+          <h3>✦ Dein Zustand</h3>
+          <div class="control">
+            <label><span>⚡ Energie</span><strong id="energyValue">5/10</strong></label>
+            <input id="energy" type="range" min="1" max="10" value="5">
+          </div>
+          <div class="control">
+            <label><span>🔥 Belastung</span><strong id="loadValue">5/10</strong></label>
+            <input id="load" type="range" min="1" max="10" value="5">
+          </div>
+          <div class="control">
+            <label for="focus"><span>☼ Fokus heute</span></label>
+            <select id="focus">
+              <option value="balanced">Ausgewogen</option>
+              <option value="urgent">Dringendes zuerst</option>
+              <option value="easy">Leichte Siege</option>
+              <option value="future">Zukunft aufbauen</option>
+            </select>
+          </div>
+
+          <div class="preset-row">
+            <button class="preset" type="button" data-preset="low">🕯 Wenig Kapazität</button>
+            <button class="preset" type="button" data-preset="balanced">⚖ Mittel</button>
+            <button class="preset" type="button" data-preset="high">⚔ Viel Kapazität</button>
+          </div>
+          <div class="mode" id="modeText">Die Route passt sich an dich an. Nicht umgekehrt.</div>
+        </section>
+
+        <section class="paper mini-card">
+          <h3>⌂ Tagesübersicht</h3>
+          <div class="metric"><span>★ XP heute</span><strong id="todayXp">0</strong></div>
+          <div class="metric"><span>✓ Quests erledigt</span><strong id="doneCount">0</strong></div>
+          <div class="metric"><span>🔥 Streak</span><strong id="streakValue">0 Tage</strong></div>
+        </section>
+
+        <section class="paper mini-card">
+          <h3>⚑ Nächster Meilenstein</h3>
+          <div class="milestone">
+            <div>Level</div>
+            <div class="big" id="nextLevel">2</div>
+            <div id="remainingXp">Noch 350 XP</div>
+          </div>
+          <button class="fab" id="quickAddBtn">＋ Quest hinzufügen</button>
+        </section>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="questModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="paper modal-card">
+    <h3 id="modalTitle">Neue Quest</h3>
+    <form id="questForm">
+      <div class="form-row">
+        <label for="qTitle">Questname</label>
+        <input id="qTitle" type="text" maxlength="90" required placeholder="z. B. Brief öffnen und nächsten Schritt markieren">
+      </div>
+      <div class="form-row">
+        <label for="qDesc">Beschreibung</label>
+        <textarea id="qDesc" rows="3" maxlength="220" placeholder="Was reicht aus, damit die Quest als erledigt zählt?"></textarea>
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="qType">Questtyp</label>
+          <select id="qType">
+            <option value="main">Main Quest</option>
+            <option value="class">Class Quest</option>
+            <option value="character">Character Quest</option>
+            <option value="side">Side Quest</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="qXp">XP</label>
+          <input id="qXp" type="number" min="5" max="500" value="40">
+        </div>
+        <div class="form-row">
+          <label for="qEffort">Aufwand 1–10</label>
+          <input id="qEffort" type="number" min="1" max="10" value="3">
+        </div>
+        <div class="form-row">
+          <label for="qLoad">Belastung 1–10</label>
+          <input id="qLoad" type="number" min="1" max="10" value="3">
+        </div>
+        <div class="form-row">
+          <label for="qImportance">Wichtigkeit 1–10</label>
+          <input id="qImportance" type="number" min="1" max="10" value="5">
+        </div>
+        <div class="form-row">
+          <label for="qFuture">Zukunftswert 1–10</label>
+          <input id="qFuture" type="number" min="1" max="10" value="5">
+        </div>
+      </div>
+      <div class="actions">
+        <button type="button" class="secondary" id="cancelModal">Abbrechen</button>
+        <button type="submit" class="primary" style="width:auto">Quest speichern</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  // Questlog V0.4 — Mobile Compact + Overview Hub
+  const typeMeta = {
+    main:{label:"Main Quest", color:"#8b352e", icon:"⚔"},
+    class:{label:"Class Quest", color:"#3f6b4d", icon:"✥"},
+    character:{label:"Character Quest", color:"#654a6c", icon:"✦"},
+    side:{label:"Side Quest", color:"#8b6b37", icon:"◈"}
+  };
+
+  const defaults = [
+    {id:1,type:"main",title:"Finanzen: nächsten Schritt wählen",desc:"Nur einen überschaubaren Schritt festlegen – nicht das ganze Problem lösen.",xp:80,effort:5,load:6,importance:9,future:6,done:false},
+    {id:2,type:"character",title:"Mini-Check-in: Was brauche ich gerade?",desc:"60 Sekunden. Energie, Belastung und ein Bedürfnis benennen.",xp:25,effort:1,load:1,importance:7,future:5,done:false},
+    {id:3,type:"class",title:"Umschulung / IT: eine Option recherchieren",desc:"Eine einzige Spur verfolgen und als mögliche Class-Route markieren.",xp:70,effort:5,load:5,importance:6,future:10,done:false},
+    {id:4,type:"main",title:"Ein Dokument oder Schreiben sortieren",desc:"Nur öffnen, lesen und nächsten Schritt markieren reicht.",xp:55,effort:3,load:4,importance:8,future:6,done:false},
+    {id:5,type:"class",title:"Remote-Work Skilltree: 1 Skill wählen",desc:"Ein Thema auswählen, das später Teil deines IT-Builds werden könnte.",xp:45,effort:3,load:3,importance:4,future:9,done:false},
+    {id:6,type:"character",title:"Eigene Entscheidung formulieren",desc:"Eine Sache in einem Satz festhalten: „Ich will / ich will nicht …“",xp:35,effort:2,load:2,importance:5,future:7,done:false},
+    {id:7,type:"side",title:"10 Minuten raus / kleine Runde",desc:"Kein Leistungsziel. Nur Location wechseln und Quest abschließen.",xp:30,effort:2,load:2,importance:4,future:4,done:false},
+    {id:8,type:"side",title:"Kontakt-Quest: einer Person ein Lebenszeichen",desc:"Eine lockere Nachricht reicht. Keine Verpflichtung auf Gespräch.",xp:40,effort:3,load:4,importance:3,future:5,done:false}
+  ];
+
+  const saved = JSON.parse(localStorage.getItem("questlog_v01") || "null");
+  let state = saved || {
+    level:1,xp:0,todayXp:0,energy:5,load:5,focus:"balanced",
+    quests:defaults,filter:"all",sort:"score",reroll:0
+  };
+
+  // V0.2 migration: alte V0.1-Spielstände bleiben nutzbar
+  state.journal = Array.isArray(state.journal) ? state.journal : [];
+  state.activityDates = Array.isArray(state.activityDates) ? state.activityDates : [];
+  state.pinnedQuestId = state.pinnedQuestId || null;
+  state.lastDailyDate = state.lastDailyDate || new Date().toLocaleDateString("en-CA");
+  if(!Array.isArray(state.quests)) state.quests = [...defaults];
+  state.quests.forEach(q=>{ if(!("completedAt" in q)) q.completedAt = null; });
+
+  const $ = id => document.getElementById(id);
+  const clamp=(n,min,max)=>Math.min(max,Math.max(min,Number(n)||min));
+  const xpNeed = level => 250 + level * 100;
+  const rankFor = level => level < 3 ? "Wanderer" : level < 6 ? "Pfadfinder" : level < 10 ? "Abenteurer" : "Questmeister";
+  const save=()=>localStorage.setItem("questlog_v01",JSON.stringify(state));
+
+  function routeMode(){
+    if(state.energy<=3 || state.load>=8) return {name:"Recovery Route",text:"Heute zählen kleine Siege. Schwere Quests werden bewusst nach hinten geschoben."};
+    if(state.energy>=8 && state.load<=4) return {name:"Adventure Route",text:"Du hast heute mehr Kapazität. Wichtige Fortschrittsquests dürfen nach vorne."};
+    return {name:"Balanced Route",text:"Wichtigkeit, Zukunftswert und Belastung werden miteinander abgewogen."};
+  }
+
+  function score(q){
+    const capacity = state.energy*1.2 - state.load*.75;
+    const mismatch = Math.max(0,(q.effort + q.load*.6) - (capacity+5));
+    let s = q.importance*2 + q.future*1.25 + q.xp/25 - mismatch*3;
+    if(state.focus==="urgent") s += q.importance*2.2;
+    if(state.focus==="easy") s += (11-q.effort)*1.9 + (11-q.load);
+    if(state.focus==="future") s += q.future*2.2;
+    if(state.pinnedQuestId===q.id) s += 18;
+    s += ((q.id*13 + state.reroll*7)%9)*.08;
+    return s;
+  }
+
+  function dots(n){
+    let out="";
+    for(let i=1;i<=5;i++) out += i<=Math.ceil(n/2) ? "●" : "○";
+    return out;
+  }
+
+  function completeQuest(id){
+    const q=state.quests.find(x=>x.id===id);
+    if(!q || q.done) return;
+    q.done=true;
+    q.completedAt=new Date().toISOString();
+    const dayKey=new Date().toLocaleDateString("en-CA");
+    if(!state.activityDates.includes(dayKey)) state.activityDates.push(dayKey);
+    state.xp += q.xp;
+    state.todayXp += q.xp;
+    let leveled=false;
+    while(state.xp >= xpNeed(state.level)){
+      state.xp -= xpNeed(state.level);
+      state.level++;
+      leveled=true;
+    }
+    save();
+    render();
+    toast(leveled ? `LEVEL UP — Level ${state.level} erreicht!` : `Quest abgeschlossen: +${q.xp} XP`);
+  }
+
+  function renderHeader(){
+    const need=xpNeed(state.level);
+    $("levelLabel").textContent=`Level ${state.level}`;
+    $("rankLabel").textContent=rankFor(state.level);
+    $("xpNow").textContent=`${state.xp} XP`;
+    $("xpNeed").textContent=`/ ${need} XP`;
+    $("xpFill").style.width=`${Math.min(100,state.xp/need*100)}%`;
+    $("nextLevel").textContent=state.level+1;
+    $("remainingXp").textContent=`Noch ${need-state.xp} XP`;
+    $("todayXp").textContent=state.todayXp;
+    $("doneCount").textContent=state.quests.filter(q=>q.done).length;
+    $("streakValue").textContent=`${streakCount()} ${streakCount()===1?"Tag":"Tage"}`;
+  }
+
+  function questCard(q){
+    const meta=typeMeta[q.type];
+    const el=document.createElement("article");
+    el.className="quest-card";
+    el.style.setProperty("--type-color",meta.color);
+    el.innerHTML=`
+      <div class="quest-head">
+        <span class="badge">${meta.icon} ${meta.label}</span>
+        <span class="badge">W ${q.importance}/10</span>
+      </div>
+      <h4>${escapeHtml(q.title)}</h4>
+      <p>${escapeHtml(q.desc||"")}</p>
+      <div class="stats">
+        <div class="statrow"><span>Aufwand</span><span class="dots">${dots(q.effort)}</span></div>
+        <div class="statrow"><span>Belastung</span><span class="dots">${dots(q.load)}</span></div>
+        <div class="statrow"><span>Zukunft</span><span class="dots">${dots(q.future)}</span></div>
+      </div>
+      <div class="xp">+${q.xp} XP</div>
+      <button class="primary">Quest abschließen</button>`;
+    el.querySelector("button").addEventListener("click",()=>completeQuest(q.id));
+    return el;
+  }
+
+  function compactQuestCard(q){
+    const meta=typeMeta[q.type];
+    const wrap=document.createElement("article");
+    wrap.className="compact-quest";
+    wrap.style.setProperty("--type-color",meta.color);
+    wrap.innerHTML=`
+      <button class="compact-summary" type="button" aria-expanded="false">
+        <span class="compact-icon">${meta.icon}</span>
+        <span>
+          <div class="compact-title">${escapeHtml(q.title)}</div>
+          <div class="compact-meta">${meta.label} · +${q.xp} XP · Aufwand ${q.effort}/10</div>
+        </span>
+        <span class="chev">⌄</span>
+      </button>
+      <div class="compact-details">
+        <p>${escapeHtml(q.desc||"")}</p>
+        <div class="stats">
+          <div class="statrow"><span>Aufwand</span><span class="dots">${dots(q.effort)}</span></div>
+          <div class="statrow"><span>Belastung</span><span class="dots">${dots(q.load)}</span></div>
+          <div class="statrow"><span>Zukunft</span><span class="dots">${dots(q.future)}</span></div>
+          <div class="statrow"><span>Wichtigkeit</span><strong>${q.importance}/10</strong></div>
+        </div>
+        <div class="xp">+${q.xp} XP</div>
+        <button class="primary compact-complete" type="button">Quest abschließen</button>
+      </div>`;
+    const summary=wrap.querySelector(".compact-summary");
+    summary.addEventListener("click",()=>{
+      const open=wrap.classList.toggle("open");
+      summary.setAttribute("aria-expanded",open?"true":"false");
+    });
+    wrap.querySelector(".compact-complete").addEventListener("click",()=>completeQuest(q.id));
+    return wrap;
+  }
+
+  function renderRoute(){
+    const mode=routeMode();
+    $("routeSubtitle").textContent=`${mode.name} — ${mode.text}`;
+    $("modeText").textContent=mode.text;
+    const candidates=state.quests.filter(q=>!q.done).sort((a,b)=>score(b)-score(a)).slice(0,3);
+    const box=$("routeGrid"); box.innerHTML="";
+    const compact=$("routeCompact"); compact.innerHTML="";
+    if(!candidates.length){
+      const empty=`<div class="empty">Questboard gecleart. Für heute darf das reichen. ✦</div>`;
+      box.innerHTML=empty; compact.innerHTML=empty; return;
+    }
+    candidates.forEach(q=>{
+      box.appendChild(questCard(q));
+      compact.appendChild(compactQuestCard(q));
+    });
+  }
+
+  function renderList(){
+    let qs=[...state.quests];
+    if(state.filter!=="all") qs=qs.filter(q=>q.type===state.filter);
+    qs.sort((a,b)=>{
+      if(state.sort==="importance") return b.importance-a.importance;
+      if(state.sort==="xp") return b.xp-a.xp;
+      if(state.sort==="effort") return a.effort-b.effort;
+      return score(b)-score(a);
+    });
+    const box=$("questList"); box.innerHTML="";
+    if(!qs.length){box.innerHTML=`<div class="empty">Hier sind noch keine Quests.</div>`;return;}
+    qs.forEach(q=>{
+      const meta=typeMeta[q.type];
+      const row=document.createElement("div");
+      row.className="row"+(q.done?" done":"");
+      row.style.setProperty("--type-color",meta.color);
+      row.innerHTML=`
+        <div class="seal">${meta.icon}</div>
+        <div><h5>${escapeHtml(q.title)}</h5><p>${meta.label} · Aufwand ${q.effort}/10 · Belastung ${q.load}/10</p></div>
+        <div class="xpmini">+${q.xp} XP</div>
+        <div class="row-action">${q.done?'<span>✓ Erledigt</span>':'<button class="secondary">Abschließen</button>'}</div>`;
+      if(!q.done) row.querySelector("button").addEventListener("click",()=>completeQuest(q.id));
+      box.appendChild(row);
+    });
+  }
+
+  function renderControls(){
+    $("energy").value=state.energy; $("energyValue").textContent=`${state.energy}/10`;
+    $("load").value=state.load; $("loadValue").textContent=`${state.load}/10`;
+    $("focus").value=state.focus; $("sortSelect").value=state.sort;
+    document.querySelectorAll(".filter").forEach(b=>b.classList.toggle("active",b.dataset.filter===state.filter));
+  }
+
+
+  function todayKey(){ return new Date().toLocaleDateString("en-CA"); }
+
+  function syncDaily(){
+    const today=todayKey();
+    if(state.lastDailyDate!==today){
+      state.todayXp=0;
+      state.lastDailyDate=today;
+      save();
+    }
+  }
+
+  function streakCount(){
+    const days=[...new Set(state.activityDates)].sort().reverse();
+    if(!days.length) return 0;
+    let cursor=new Date();
+    const today=todayKey();
+    const yesterday=new Date(Date.now()-86400000).toLocaleDateString("en-CA");
+    if(days[0]!==today && days[0]!==yesterday) return 0;
+    if(days[0]===yesterday) cursor=new Date(Date.now()-86400000);
+    let streak=0;
+    for(const d of days){
+      const expected=cursor.toLocaleDateString("en-CA");
+      if(d!==expected) break;
+      streak++;
+      cursor.setDate(cursor.getDate()-1);
+    }
+    return streak;
+  }
+
+  function renderCharacter(){
+    const need=xpNeed(state.level);
+    $("charLevel").textContent=`Level ${state.level}`;
+    $("charRank").textContent=rankFor(state.level);
+    $("charDone").textContent=state.quests.filter(q=>q.done).length;
+    $("charXpFill").style.width=`${Math.min(100,state.xp/need*100)}%`;
+    $("charXpText").textContent=`${state.xp} / ${need} XP bis Level ${state.level+1}`;
+
+    const counts={
+      main:state.quests.filter(q=>q.done&&q.type==="main").length,
+      class:state.quests.filter(q=>q.done&&q.type==="class").length,
+      character:state.quests.filter(q=>q.done&&q.type==="character").length,
+      side:state.quests.filter(q=>q.done&&q.type==="side").length
+    };
+    const attrs=[
+      ["Entschlossenheit", counts.main, "Main Quests"],
+      ["Können", counts.class, "Class Quests"],
+      ["Selbstkenntnis", counts.character, "Character Quests"],
+      ["Alltagskraft", counts.side, "Side Quests"],
+      ["Erfahrung", state.quests.filter(q=>q.done).length, "alle Quests"]
+    ];
+    const box=$("attributeList"); box.innerHTML="";
+    attrs.forEach(([name,value,source])=>{
+      const lvl=Math.min(10,Math.floor(value/2)+1);
+      const row=document.createElement("div");
+      row.className="attribute-row";
+      row.innerHTML=`<strong>${name}</strong><div><div class="progress"><span style="width:${lvl*10}%"></span></div><div class="subtitle">${value} erledigt · ${source}</div></div><strong>${lvl}/10</strong>`;
+      box.appendChild(row);
+    });
+  }
+
+  function renderSkills(){
+    const paths=[
+      {type:"main",icon:"⚔",name:"Pfad des Handelns",desc:"Wichtige Themen angehen"},
+      {type:"class",icon:"✥",name:"Pfad des Könnens",desc:"Fähigkeiten & Zukunft aufbauen"},
+      {type:"character",icon:"✦",name:"Pfad des Selbst",desc:"Eigene Bedürfnisse & Entscheidungen"},
+      {type:"side",icon:"◈",name:"Pfad des Alltags",desc:"Stabilität durch kleine Schritte"}
+    ];
+    const thresholds=[1,3,6,10];
+    const box=$("skillGrid"); box.innerHTML="";
+    paths.forEach(p=>{
+      const count=state.quests.filter(q=>q.done&&q.type===p.type).length;
+      const next=thresholds.find(t=>count<t) || thresholds[thresholds.length-1];
+      const unlocked=thresholds.filter(t=>count>=t).length;
+      const card=document.createElement("div"); card.className="feature-card";
+      let nodes=thresholds.map((t,i)=>`<div class="skill-node ${count>=t?"":"locked"}"><div class="tier">Stufe ${i+1} · ${t} Quest${t===1?"":"s"}</div><strong>${count>=t?"✓ Freigeschaltet":"🔒 Noch gesperrt"}</strong></div>`).join("");
+      card.innerHTML=`<h4>${p.icon} ${p.name}</h4><p>${p.desc}</p><div class="focus-chip">${count} erledigt · ${unlocked}/4 Stufen</div><div style="display:grid;gap:7px;margin-top:10px">${nodes}</div>`;
+      box.appendChild(card);
+    });
+  }
+
+  function renderBosses(){
+    const bosses=state.quests
+      .filter(q=>!q.done && (q.importance>=8 || q.load>=7))
+      .sort((a,b)=>(b.importance+b.load+b.effort)-(a.importance+a.load+a.effort))
+      .slice(0,3);
+    const box=$("bossGrid"); box.innerHTML="";
+    if(!bosses.length){
+      box.innerHTML=`<div class="empty">Aktuell wartet kein großer Boss auf dich. Das darf auch mal so sein. ✦</div>`;
+      return;
+    }
+    bosses.forEach(q=>{
+      const maxHp=(q.importance+q.load+q.effort)*10;
+      const hp=Math.max(20,maxHp-Math.round((10-state.load+state.energy)*4));
+      const meta=typeMeta[q.type];
+      const card=document.createElement("article");
+      card.className="boss-card"+(state.pinnedQuestId===q.id?" active-boss":"");
+      card.innerHTML=`
+        <div class="badge">${meta.icon} ${meta.label}</div>
+        <h4>${escapeHtml(q.title)}</h4>
+        <p>${escapeHtml(q.desc||"Große Quest – in kleine Angriffe zerlegen.")}</p>
+        <div class="boss-hp">
+          <div class="statrow"><span>Bossdruck</span><strong>${q.load}/10</strong></div>
+          <div class="progress"><span style="width:${Math.min(100,hp/maxHp*100)}%"></span></div>
+        </div>
+        <div class="stats">
+          <div class="statrow"><span>Wichtigkeit</span><strong>${q.importance}/10</strong></div>
+          <div class="statrow"><span>Belohnung</span><strong>+${q.xp} XP</strong></div>
+        </div>
+        <button class="primary">${state.pinnedQuestId===q.id?"★ Aktiver Boss":"Als Fokus markieren"}</button>`;
+      card.querySelector("button").addEventListener("click",()=>{
+        state.pinnedQuestId = state.pinnedQuestId===q.id ? null : q.id;
+        save(); render();
+        toast(state.pinnedQuestId===q.id ? "Boss als Fokus markiert." : "Boss-Fokus gelöst.");
+      });
+      box.appendChild(card);
+    });
+  }
+
+  function renderJournal(){
+    const box=$("journalList"); box.innerHTML="";
+    if(!state.journal.length){
+      box.innerHTML=`<div class="empty">Noch kein Eintrag. Ein Satz reicht für den Anfang.</div>`;
+      return;
+    }
+    [...state.journal].sort((a,b)=>b.created.localeCompare(a.created)).forEach(entry=>{
+      const el=document.createElement("article"); el.className="journal-entry";
+      const date=new Date(entry.created);
+      el.innerHTML=`<header><h4>${escapeHtml(entry.title||"Eintrag")}</h4><time>${date.toLocaleString("de-DE",{dateStyle:"medium",timeStyle:"short"})}</time></header><p>${escapeHtml(entry.text)}</p>`;
+      box.appendChild(el);
+    });
+  }
+
+  function switchView(name){
+    document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===`view-${name}`));
+    document.querySelectorAll("#mainNav [data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===name));
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  function setupOverviewHub(){
+    const hub=$("overviewHub");
+    const btn=$("hubReturn");
+    if(!hub||!btn) return;
+
+    const update=()=>{
+      if(window.innerWidth>760){btn.classList.remove("show");return;}
+      const r=hub.getBoundingClientRect();
+      const isAbove=r.bottom<8;
+      btn.classList.toggle("show",isAbove);
+    };
+
+    btn.addEventListener("click",()=>hub.scrollIntoView({behavior:"smooth",block:"start"}));
+    window.addEventListener("scroll",update,{passive:true});
+    window.addEventListener("resize",update,{passive:true});
+    update();
+  }
+
+  function render(){syncDaily();renderHeader();renderControls();renderRoute();renderList();renderCharacter();renderSkills();renderBosses();renderJournal();}
+
+  function openModal(){
+    $("questForm").reset();
+    $("qXp").value=40;$("qEffort").value=3;$("qLoad").value=3;$("qImportance").value=5;$("qFuture").value=5;
+    $("questModal").classList.add("open");
+    setTimeout(()=>$("qTitle").focus(),50);
+  }
+  function closeModal(){$("questModal").classList.remove("open");}
+
+  $("energy").addEventListener("input",e=>{state.energy=+e.target.value;save();render();});
+  $("load").addEventListener("input",e=>{state.load=+e.target.value;save();render();});
+  $("focus").addEventListener("change",e=>{state.focus=e.target.value;save();render();});
+  $("sortSelect").addEventListener("change",e=>{state.sort=e.target.value;save();renderList();});
+  $("rerollBtn").addEventListener("click",()=>{state.reroll++;save();renderRoute();toast("Route neu gewürfelt.");});
+  $("addQuestBtn").addEventListener("click",openModal);
+  $("quickAddBtn").addEventListener("click",openModal);
+  $("cancelModal").addEventListener("click",closeModal);
+  $("questModal").addEventListener("click",e=>{if(e.target===$("questModal")) closeModal();});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape") closeModal();});
+  $("filters").addEventListener("click",e=>{
+    const b=e.target.closest("[data-filter]"); if(!b)return;
+    state.filter=b.dataset.filter;save();renderControls();renderList();
+  });
+  $("questForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const q={
+      id:Date.now(),
+      type:$("qType").value,
+      title:$("qTitle").value.trim(),
+      desc:$("qDesc").value.trim(),
+      xp:clamp($("qXp").value,5,500),
+      effort:clamp($("qEffort").value,1,10),
+      load:clamp($("qLoad").value,1,10),
+      importance:clamp($("qImportance").value,1,10),
+      future:clamp($("qFuture").value,1,10),
+      done:false
+    };
+    if(!q.title)return;
+    state.quests.unshift(q);save();closeModal();render();toast("Neue Quest ins Questlog aufgenommen.");
+  });
+
+  $("mainNav").addEventListener("click",e=>{
+    const b=e.target.closest("[data-view]"); if(!b)return;
+    switchView(b.dataset.view);
+  });
+
+  document.querySelectorAll("[data-preset]").forEach(btn=>btn.addEventListener("click",()=>{
+    const p=btn.dataset.preset;
+    if(p==="low"){state.energy=2;state.load=8;}
+    if(p==="balanced"){state.energy=5;state.load=5;}
+    if(p==="high"){state.energy=8;state.load=3;}
+    save();render();toast("Zustand angepasst.");
+  }));
+
+  $("saveJournalBtn").addEventListener("click",()=>{
+    const title=$("journalTitle").value.trim();
+    const text=$("journalText").value.trim();
+    if(!text){toast("Schreib wenigstens einen Satz.");return;}
+    state.journal.push({id:Date.now(),title,text,created:new Date().toISOString()});
+    $("journalTitle").value="";$("journalText").value="";
+    save();renderJournal();toast("Tagebucheintrag gespeichert.");
+  });
+
+  $("resetBtn").addEventListener("click",()=>{
+    if(!confirm("Questlog wirklich auf die Startversion zurücksetzen?")) return;
+    localStorage.removeItem("questlog_v01"); location.reload();
+  });
+
+  function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
+  let toastTimer;
+  function toast(msg){
+    clearTimeout(toastTimer);$("toast").textContent=msg;$("toast").classList.add("show");
+    toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2200);
+  }
+  setupOverviewHub();
+  render();
+})();
+</script>
+</body>
+</html>
