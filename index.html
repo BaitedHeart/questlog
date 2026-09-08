@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#2b1c12" />
+<title>Questlog V0.1</title>
+<style>
+:root{
+  --ink:#2d2117;
+  --muted:#6e5a44;
+  --paper:#e7cf9c;
+  --paper-2:#d9ba7d;
+  --paper-3:#f2dfb4;
+  --wood:#2a1b12;
+  --wood-2:#3a281a;
+  --gold:#b78a3c;
+  --gold-2:#ddb66a;
+  --red:#8b352e;
+  --green:#3f6b4d;
+  --blue:#3d5f7a;
+  --purple:#654a6c;
+  --line:rgba(74,49,28,.35);
+  --shadow:0 12px 28px rgba(26,16,9,.28);
+}
+*{box-sizing:border-box}
+html{background:#160f0a}
+body{
+  margin:0;
+  color:var(--ink);
+  font-family: Georgia, "Times New Roman", serif;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255,255,255,.03), transparent 22%),
+    linear-gradient(135deg,#24170f,#120c08 55%,#2b1c12);
+  min-height:100vh;
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.shell{
+  width:min(1420px,100%);
+  margin:0 auto;
+  padding:16px;
+}
+.frame{
+  background:
+    linear-gradient(rgba(255,255,255,.02),rgba(0,0,0,.05)),
+    repeating-linear-gradient(90deg,#2a1b12 0 16px,#2d1d12 16px 34px,#24170f 34px 50px);
+  border:1px solid #6e4b2c;
+  border-radius:22px;
+  box-shadow:0 22px 70px rgba(0,0,0,.45), inset 0 0 0 4px rgba(132,91,49,.24);
+  padding:14px;
+}
+.app{
+  display:grid;
+  grid-template-columns:240px minmax(0,1fr) 290px;
+  gap:14px;
+}
+.panel, .paper{
+  background:
+    radial-gradient(circle at 12% 18%, rgba(92,57,24,.09) 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 65%, rgba(92,57,24,.06) 0 1px, transparent 2px),
+    linear-gradient(180deg,rgba(255,255,255,.18),rgba(75,45,19,.06)),
+    var(--paper);
+  background-size:27px 27px,33px 33px,auto,auto;
+  border:1px solid #9d7846;
+  box-shadow:inset 0 0 26px rgba(80,50,25,.13);
+}
+.sidebar{
+  background:linear-gradient(#21160f,#342316);
+  color:#eadbb9;
+  border:1px solid #5a3e28;
+  border-radius:16px;
+  padding:14px;
+  min-width:0;
+}
+.brand{
+  text-align:center;
+  border-bottom:1px solid rgba(225,190,124,.25);
+  padding:10px 8px 16px;
+}
+.brand .crest{
+  width:64px;height:64px;margin:0 auto 8px;
+  border:2px solid #c69a4b;border-radius:50%;
+  display:grid;place-items:center;
+  font-size:30px;
+  box-shadow:inset 0 0 0 5px rgba(198,154,75,.12);
+}
+.brand h2{margin:0;font-size:24px;letter-spacing:.04em;color:#f1d99b}
+.level{font-size:14px;color:#d7c199;margin-top:6px}
+.xpbar{
+  height:11px;border:1px solid #9f7a43;border-radius:999px;
+  overflow:hidden;background:#17100c;margin-top:10px
+}
+.xpbar > span{
+  display:block;height:100%;
+  background:linear-gradient(90deg,#5a8ab1,#91bfd7);
+  width:0%;
+  transition:width .35s ease;
+}
+.xpline{display:flex;justify-content:space-between;font-size:12px;color:#d8c9a6;margin-top:6px}
+.nav{display:grid;gap:8px;margin-top:14px}
+.nav button{
+  width:100%;text-align:left;padding:11px 12px;border-radius:10px;
+  color:#e6d7b4;background:transparent;border:1px solid transparent
+}
+.nav button.active,.nav button:hover{
+  background:linear-gradient(90deg,rgba(194,148,73,.18),rgba(194,148,73,.05));
+  border-color:rgba(194,148,73,.35);color:#ffe4a7
+}
+.quote{
+  margin-top:18px;
+  color:#dbc9a2;font-style:italic;font-size:14px;line-height:1.5;
+  border-top:1px solid rgba(225,190,124,.2);padding-top:16px
+}
+.main{min-width:0}
+.hero{
+  border-radius:16px 16px 8px 8px;
+  padding:20px 24px;
+  position:relative;
+  overflow:hidden;
+}
+.hero:after{
+  content:"";position:absolute;right:-40px;top:-28px;width:220px;height:150px;
+  border-radius:50%;
+  border:1px solid rgba(81,53,28,.12);
+  transform:rotate(-12deg);
+}
+.hero h1{
+  margin:0;font-size:clamp(38px,7vw,68px);
+  font-variant:small-caps;letter-spacing:.03em;
+  line-height:.95;text-shadow:0 1px 0 #f8e7bd
+}
+.hero p{margin:8px 0 0;color:var(--muted);font-style:italic}
+.section{
+  margin-top:12px;border-radius:12px;padding:16px;
+}
+.section-title{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  margin-bottom:12px
+}
+.section-title h3{margin:0;font-size:24px}
+.subtitle{color:var(--muted);font-size:14px}
+.route-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.quest-card{
+  background:linear-gradient(180deg,#edd7a6,#dfc48c);
+  border:1px solid #a8824f;border-radius:10px;
+  padding:14px;position:relative;box-shadow:0 8px 18px rgba(74,47,22,.12);
+  min-width:0
+}
+.quest-card::before{
+  content:"";position:absolute;left:0;right:0;top:0;height:4px;border-radius:10px 10px 0 0;
+  background:var(--type-color,#8b352e)
+}
+.quest-head{display:flex;justify-content:space-between;gap:10px}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 8px;
+  font-size:12px;background:rgba(255,255,255,.28);border:1px solid rgba(70,45,23,.12)
+}
+.quest-card h4{font-size:19px;margin:10px 0 6px;line-height:1.15}
+.quest-card p{font-size:14px;line-height:1.42;color:#594630;margin:0}
+.stats{display:grid;gap:5px;margin:12px 0;font-size:12px;color:#5a4631}
+.statrow{display:flex;justify-content:space-between;gap:10px}
+.dots{letter-spacing:1px}
+.xp{
+  text-align:center;margin:12px 0 8px;font-size:24px;font-weight:bold;color:#5e361a;
+}
+.primary,.secondary,.ghost{
+  min-height:42px;border-radius:8px;padding:9px 12px;border:1px solid #6f4d2c;
+}
+.primary{
+  width:100%;color:#f7e8c6;background:linear-gradient(#5b3a22,#3e2818);
+  box-shadow:inset 0 0 0 2px rgba(220,176,99,.12)
+}
+.secondary{color:#3c2b1c;background:#e1c58d}
+.ghost{color:#ead9b6;background:transparent;border-color:rgba(230,202,151,.28)}
+.list-toolbar{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;
+  margin-bottom:10px
+}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filter{
+  border:1px solid #a27d4b;background:#d8bc86;color:#4a3625;border-radius:7px;padding:7px 10px
+}
+.filter.active{background:#513521;color:#f6e4bd}
+.quest-list{display:grid;gap:8px}
+.row{
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:10px;align-items:center;
+  background:rgba(255,255,255,.16);border:1px solid rgba(105,75,42,.25);
+  border-radius:9px;padding:10px
+}
+.seal{
+  width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  color:#f6e8cc;font-weight:bold;background:var(--type-color,#8b352e);
+  box-shadow:inset 0 0 0 3px rgba(255,255,255,.08)
+}
+.row h5{margin:0 0 2px;font-size:15px}.row p{margin:0;color:#6a5339;font-size:12px}
+.row .xpmini{font-weight:bold;white-space:nowrap}
+.row.done{opacity:.55}.row.done h5{text-decoration:line-through}
+.right{
+  display:grid;gap:12px;align-content:start;min-width:0
+}
+.status-card,.mini-card{
+  border-radius:12px;padding:14px
+}
+.status-card h3,.mini-card h3{margin:0 0 12px;font-size:21px}
+.control{margin:12px 0}
+.control label{display:flex;justify-content:space-between;gap:10px;font-size:14px}
+input[type=range]{width:100%;accent-color:#705032}
+select,input[type=text],input[type=number],textarea{
+  width:100%;border:1px solid #a27d4b;border-radius:8px;background:#f0dcae;
+  color:#392819;padding:10px;min-height:42px
+}
+.small-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.metric{padding:10px;border-top:1px solid rgba(84,57,30,.15);display:flex;justify-content:space-between}
+.mode{
+  margin-top:12px;padding:10px;border-radius:9px;background:rgba(90,59,31,.08);
+  font-style:italic;font-size:13px;line-height:1.4
+}
+.milestone{
+  text-align:center;padding:10px;border:1px dashed #9d7846;border-radius:10px
+}
+.milestone .big{font-size:30px;font-weight:bold;margin:7px 0}
+.fab{
+  width:100%;margin-top:10px;
+  background:linear-gradient(#7e512d,#4d321e);
+  color:#f6e9c9;border:1px solid #3a2618;border-radius:9px;padding:11px
+}
+.modal{
+  position:fixed;inset:0;background:rgba(13,8,5,.72);display:none;place-items:center;padding:20px;z-index:20
+}
+.modal.open{display:grid}
+.modal-card{
+  width:min(560px,100%);max-height:90vh;overflow:auto;border-radius:14px;padding:18px
+}
+.modal-card h3{margin-top:0;font-size:26px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-row{display:grid;gap:6px;margin-bottom:10px}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.toast{
+  position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);
+  background:#2b1d13;color:#f2e2c0;border:1px solid #8a6339;padding:11px 14px;border-radius:9px;
+  opacity:0;pointer-events:none;transition:.25s;z-index:30;box-shadow:var(--shadow)
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty{padding:20px;text-align:center;color:#6d563a;font-style:italic}
+@media(max-width:1100px){
+  .app{grid-template-columns:210px minmax(0,1fr)}
+  .right{grid-column:1/-1;grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:760px){
+  .shell{padding:8px}.frame{padding:8px;border-radius:14px}
+  .app{grid-template-columns:1fr}
+  .sidebar{order:2}.main{order:1}.right{order:3;grid-template-columns:1fr}
+  .nav{grid-template-columns:repeat(2,1fr)}
+  .quote{display:none}
+  .route-grid{grid-template-columns:1fr}
+  .row{grid-template-columns:auto minmax(0,1fr) auto}
+  .row .row-action{grid-column:2/-1}
+  .form-grid,.small-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="frame">
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="crest">⛰</div>
+          <h2 id="levelLabel">Level 1</h2>
+          <div class="level" id="rankLabel">Wanderer</div>
+          <div class="xpbar"><span id="xpFill"></span></div>
+          <div class="xpline"><span id="xpNow">0 XP</span><span id="xpNeed">/ 350 XP</span></div>
+        </div>
+        <div class="nav">
+          <button class="active">⚔ Questlog</button>
+          <button disabled title="Kommt später">♟ Charakter</button>
+          <button disabled title="Kommt später">✥ Skilltree</button>
+          <button disabled title="Kommt später">🗺 Karte</button>
+          <button disabled title="Kommt später">📜 Tagebuch</button>
+          <button id="resetBtn">⚙ Reset</button>
+        </div>
+        <div class="quote">„Nicht das perfekte Leben ist das Ziel, sondern ein Leben, das sich nach dir anfühlt.“</div>
+      </aside>
+
+      <main class="main">
+        <section class="paper hero">
+          <h1>Questlog</h1>
+          <p>Kleine Schritte. Große Abenteuer.</p>
+        </section>
+
+        <section class="paper section">
+          <div class="section-title">
+            <div>
+              <h3>⚔ Deine heutige Route</h3>
+              <div class="subtitle" id="routeSubtitle">Basierend auf deinem aktuellen Zustand.</div>
+            </div>
+            <button class="secondary" id="rerollBtn">↻ Route neu würfeln</button>
+          </div>
+          <div class="route-grid" id="routeGrid"></div>
+        </section>
+
+        <section class="paper section">
+          <div class="section-title">
+            <div>
+              <h3>✥ Alle Quests</h3>
+              <div class="subtitle">Dein Questboard – sortiert nach dem, was gerade sinnvoll ist.</div>
+            </div>
+            <button class="secondary" id="addQuestBtn">＋ Neue Quest</button>
+          </div>
+          <div class="list-toolbar">
+            <div class="filters" id="filters">
+              <button class="filter active" data-filter="all">Alle</button>
+              <button class="filter" data-filter="main">Main</button>
+              <button class="filter" data-filter="class">Class</button>
+              <button class="filter" data-filter="character">Character</button>
+              <button class="filter" data-filter="side">Side</button>
+            </div>
+            <select id="sortSelect" style="max-width:220px">
+              <option value="score">Sortieren: Empfehlung</option>
+              <option value="importance">Wichtigkeit</option>
+              <option value="xp">XP</option>
+              <option value="effort">Aufwand</option>
+            </select>
+          </div>
+          <div class="quest-list" id="questList"></div>
+        </section>
+      </main>
+
+      <aside class="right">
+        <section class="paper status-card">
+          <h3>✦ Dein Zustand</h3>
+          <div class="control">
+            <label><span>⚡ Energie</span><strong id="energyValue">5/10</strong></label>
+            <input id="energy" type="range" min="1" max="10" value="5">
+          </div>
+          <div class="control">
+            <label><span>🔥 Belastung</span><strong id="loadValue">5/10</strong></label>
+            <input id="load" type="range" min="1" max="10" value="5">
+          </div>
+          <div class="control">
+            <label for="focus"><span>☼ Fokus heute</span></label>
+            <select id="focus">
+              <option value="balanced">Ausgewogen</option>
+              <option value="urgent">Dringendes zuerst</option>
+              <option value="easy">Leichte Siege</option>
+              <option value="future">Zukunft aufbauen</option>
+            </select>
+          </div>
+          <div class="mode" id="modeText">Die Route passt sich an dich an. Nicht umgekehrt.</div>
+        </section>
+
+        <section class="paper mini-card">
+          <h3>⌂ Tagesübersicht</h3>
+          <div class="metric"><span>★ XP heute</span><strong id="todayXp">0</strong></div>
+          <div class="metric"><span>✓ Quests erledigt</span><strong id="doneCount">0</strong></div>
+          <div class="metric"><span>🔥 Streak</span><strong>1 Tag</strong></div>
+        </section>
+
+        <section class="paper mini-card">
+          <h3>⚑ Nächster Meilenstein</h3>
+          <div class="milestone">
+            <div>Level</div>
+            <div class="big" id="nextLevel">2</div>
+            <div id="remainingXp">Noch 350 XP</div>
+          </div>
+          <button class="fab" id="quickAddBtn">＋ Quest hinzufügen</button>
+        </section>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="questModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="paper modal-card">
+    <h3 id="modalTitle">Neue Quest</h3>
+    <form id="questForm">
+      <div class="form-row">
+        <label for="qTitle">Questname</label>
+        <input id="qTitle" type="text" maxlength="90" required placeholder="z. B. Brief öffnen und nächsten Schritt markieren">
+      </div>
+      <div class="form-row">
+        <label for="qDesc">Beschreibung</label>
+        <textarea id="qDesc" rows="3" maxlength="220" placeholder="Was reicht aus, damit die Quest als erledigt zählt?"></textarea>
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="qType">Questtyp</label>
+          <select id="qType">
+            <option value="main">Main Quest</option>
+            <option value="class">Class Quest</option>
+            <option value="character">Character Quest</option>
+            <option value="side">Side Quest</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="qXp">XP</label>
+          <input id="qXp" type="number" min="5" max="500" value="40">
+        </div>
+        <div class="form-row">
+          <label for="qEffort">Aufwand 1–10</label>
+          <input id="qEffort" type="number" min="1" max="10" value="3">
+        </div>
+        <div class="form-row">
+          <label for="qLoad">Belastung 1–10</label>
+          <input id="qLoad" type="number" min="1" max="10" value="3">
+        </div>
+        <div class="form-row">
+          <label for="qImportance">Wichtigkeit 1–10</label>
+          <input id="qImportance" type="number" min="1" max="10" value="5">
+        </div>
+        <div class="form-row">
+          <label for="qFuture">Zukunftswert 1–10</label>
+          <input id="qFuture" type="number" min="1" max="10" value="5">
+        </div>
+      </div>
+      <div class="actions">
+        <button type="button" class="secondary" id="cancelModal">Abbrechen</button>
+        <button type="submit" class="primary" style="width:auto">Quest speichern</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  const typeMeta = {
+    main:{label:"Main Quest", color:"#8b352e", icon:"⚔"},
+    class:{label:"Class Quest", color:"#3f6b4d", icon:"✥"},
+    character:{label:"Character Quest", color:"#654a6c", icon:"✦"},
+    side:{label:"Side Quest", color:"#8b6b37", icon:"◈"}
+  };
+
+  const defaults = [
+    {id:1,type:"main",title:"Finanzen: nächsten Schritt wählen",desc:"Nur einen überschaubaren Schritt festlegen – nicht das ganze Problem lösen.",xp:80,effort:5,load:6,importance:9,future:6,done:false},
+    {id:2,type:"character",title:"Mini-Check-in: Was brauche ich gerade?",desc:"60 Sekunden. Energie, Belastung und ein Bedürfnis benennen.",xp:25,effort:1,load:1,importance:7,future:5,done:false},
+    {id:3,type:"class",title:"Umschulung / IT: eine Option recherchieren",desc:"Eine einzige Spur verfolgen und als mögliche Class-Route markieren.",xp:70,effort:5,load:5,importance:6,future:10,done:false},
+    {id:4,type:"main",title:"Ein Dokument oder Schreiben sortieren",desc:"Nur öffnen, lesen und nächsten Schritt markieren reicht.",xp:55,effort:3,load:4,importance:8,future:6,done:false},
+    {id:5,type:"class",title:"Remote-Work Skilltree: 1 Skill wählen",desc:"Ein Thema auswählen, das später Teil deines IT-Builds werden könnte.",xp:45,effort:3,load:3,importance:4,future:9,done:false},
+    {id:6,type:"character",title:"Eigene Entscheidung formulieren",desc:"Eine Sache in einem Satz festhalten: „Ich will / ich will nicht …“",xp:35,effort:2,load:2,importance:5,future:7,done:false},
+    {id:7,type:"side",title:"10 Minuten raus / kleine Runde",desc:"Kein Leistungsziel. Nur Location wechseln und Quest abschließen.",xp:30,effort:2,load:2,importance:4,future:4,done:false},
+    {id:8,type:"side",title:"Kontakt-Quest: einer Person ein Lebenszeichen",desc:"Eine lockere Nachricht reicht. Keine Verpflichtung auf Gespräch.",xp:40,effort:3,load:4,importance:3,future:5,done:false}
+  ];
+
+  const saved = JSON.parse(localStorage.getItem("questlog_v01") || "null");
+  let state = saved || {
+    level:1,xp:0,todayXp:0,energy:5,load:5,focus:"balanced",
+    quests:defaults,filter:"all",sort:"score",reroll:0
+  };
+
+  const $ = id => document.getElementById(id);
+  const clamp=(n,min,max)=>Math.min(max,Math.max(min,Number(n)||min));
+  const xpNeed = level => 250 + level * 100;
+  const rankFor = level => level < 3 ? "Wanderer" : level < 6 ? "Pfadfinder" : level < 10 ? "Abenteurer" : "Questmeister";
+  const save=()=>localStorage.setItem("questlog_v01",JSON.stringify(state));
+
+  function routeMode(){
+    if(state.energy<=3 || state.load>=8) return {name:"Recovery Route",text:"Heute zählen kleine Siege. Schwere Quests werden bewusst nach hinten geschoben."};
+    if(state.energy>=8 && state.load<=4) return {name:"Adventure Route",text:"Du hast heute mehr Kapazität. Wichtige Fortschrittsquests dürfen nach vorne."};
+    return {name:"Balanced Route",text:"Wichtigkeit, Zukunftswert und Belastung werden miteinander abgewogen."};
+  }
+
+  function score(q){
+    const capacity = state.energy*1.2 - state.load*.75;
+    const mismatch = Math.max(0,(q.effort + q.load*.6) - (capacity+5));
+    let s = q.importance*2 + q.future*1.25 + q.xp/25 - mismatch*3;
+    if(state.focus==="urgent") s += q.importance*2.2;
+    if(state.focus==="easy") s += (11-q.effort)*1.9 + (11-q.load);
+    if(state.focus==="future") s += q.future*2.2;
+    s += ((q.id*13 + state.reroll*7)%9)*.08;
+    return s;
+  }
+
+  function dots(n){
+    let out="";
+    for(let i=1;i<=5;i++) out += i<=Math.ceil(n/2) ? "●" : "○";
+    return out;
+  }
+
+  function completeQuest(id){
+    const q=state.quests.find(x=>x.id===id);
+    if(!q || q.done) return;
+    q.done=true;
+    state.xp += q.xp;
+    state.todayXp += q.xp;
+    let leveled=false;
+    while(state.xp >= xpNeed(state.level)){
+      state.xp -= xpNeed(state.level);
+      state.level++;
+      leveled=true;
+    }
+    save();
+    render();
+    toast(leveled ? `LEVEL UP — Level ${state.level} erreicht!` : `Quest abgeschlossen: +${q.xp} XP`);
+  }
+
+  function renderHeader(){
+    const need=xpNeed(state.level);
+    $("levelLabel").textContent=`Level ${state.level}`;
+    $("rankLabel").textContent=rankFor(state.level);
+    $("xpNow").textContent=`${state.xp} XP`;
+    $("xpNeed").textContent=`/ ${need} XP`;
+    $("xpFill").style.width=`${Math.min(100,state.xp/need*100)}%`;
+    $("nextLevel").textContent=state.level+1;
+    $("remainingXp").textContent=`Noch ${need-state.xp} XP`;
+    $("todayXp").textContent=state.todayXp;
+    $("doneCount").textContent=state.quests.filter(q=>q.done).length;
+  }
+
+  function questCard(q){
+    const meta=typeMeta[q.type];
+    const el=document.createElement("article");
+    el.className="quest-card";
+    el.style.setProperty("--type-color",meta.color);
+    el.innerHTML=`
+      <div class="quest-head">
+        <span class="badge">${meta.icon} ${meta.label}</span>
+        <span class="badge">W ${q.importance}/10</span>
+      </div>
+      <h4>${escapeHtml(q.title)}</h4>
+      <p>${escapeHtml(q.desc||"")}</p>
+      <div class="stats">
+        <div class="statrow"><span>Aufwand</span><span class="dots">${dots(q.effort)}</span></div>
+        <div class="statrow"><span>Belastung</span><span class="dots">${dots(q.load)}</span></div>
+        <div class="statrow"><span>Zukunft</span><span class="dots">${dots(q.future)}</span></div>
+      </div>
+      <div class="xp">+${q.xp} XP</div>
+      <button class="primary">Quest abschließen</button>`;
+    el.querySelector("button").addEventListener("click",()=>completeQuest(q.id));
+    return el;
+  }
+
+  function renderRoute(){
+    const mode=routeMode();
+    $("routeSubtitle").textContent=`${mode.name} — ${mode.text}`;
+    $("modeText").textContent=mode.text;
+    const candidates=state.quests.filter(q=>!q.done).sort((a,b)=>score(b)-score(a)).slice(0,3);
+    const box=$("routeGrid"); box.innerHTML="";
+    if(!candidates.length){ box.innerHTML=`<div class="empty">Questboard gecleart. Für heute darf das reichen. ✦</div>`; return; }
+    candidates.forEach(q=>box.appendChild(questCard(q)));
+  }
+
+  function renderList(){
+    let qs=[...state.quests];
+    if(state.filter!=="all") qs=qs.filter(q=>q.type===state.filter);
+    qs.sort((a,b)=>{
+      if(state.sort==="importance") return b.importance-a.importance;
+      if(state.sort==="xp") return b.xp-a.xp;
+      if(state.sort==="effort") return a.effort-b.effort;
+      return score(b)-score(a);
+    });
+    const box=$("questList"); box.innerHTML="";
+    if(!qs.length){box.innerHTML=`<div class="empty">Hier sind noch keine Quests.</div>`;return;}
+    qs.forEach(q=>{
+      const meta=typeMeta[q.type];
+      const row=document.createElement("div");
+      row.className="row"+(q.done?" done":"");
+      row.style.setProperty("--type-color",meta.color);
+      row.innerHTML=`
+        <div class="seal">${meta.icon}</div>
+        <div><h5>${escapeHtml(q.title)}</h5><p>${meta.label} · Aufwand ${q.effort}/10 · Belastung ${q.load}/10</p></div>
+        <div class="xpmini">+${q.xp} XP</div>
+        <div class="row-action">${q.done?'<span>✓ Erledigt</span>':'<button class="secondary">Abschließen</button>'}</div>`;
+      if(!q.done) row.querySelector("button").addEventListener("click",()=>completeQuest(q.id));
+      box.appendChild(row);
+    });
+  }
+
+  function renderControls(){
+    $("energy").value=state.energy; $("energyValue").textContent=`${state.energy}/10`;
+    $("load").value=state.load; $("loadValue").textContent=`${state.load}/10`;
+    $("focus").value=state.focus; $("sortSelect").value=state.sort;
+    document.querySelectorAll(".filter").forEach(b=>b.classList.toggle("active",b.dataset.filter===state.filter));
+  }
+
+  function render(){renderHeader();renderControls();renderRoute();renderList();}
+
+  function openModal(){
+    $("questForm").reset();
+    $("qXp").value=40;$("qEffort").value=3;$("qLoad").value=3;$("qImportance").value=5;$("qFuture").value=5;
+    $("questModal").classList.add("open");
+    setTimeout(()=>$("qTitle").focus(),50);
+  }
+  function closeModal(){$("questModal").classList.remove("open");}
+
+  $("energy").addEventListener("input",e=>{state.energy=+e.target.value;save();render();});
+  $("load").addEventListener("input",e=>{state.load=+e.target.value;save();render();});
+  $("focus").addEventListener("change",e=>{state.focus=e.target.value;save();render();});
+  $("sortSelect").addEventListener("change",e=>{state.sort=e.target.value;save();renderList();});
+  $("rerollBtn").addEventListener("click",()=>{state.reroll++;save();renderRoute();toast("Route neu gewürfelt.");});
+  $("addQuestBtn").addEventListener("click",openModal);
+  $("quickAddBtn").addEventListener("click",openModal);
+  $("cancelModal").addEventListener("click",closeModal);
+  $("questModal").addEventListener("click",e=>{if(e.target===$("questModal")) closeModal();});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape") closeModal();});
+  $("filters").addEventListener("click",e=>{
+    const b=e.target.closest("[data-filter]"); if(!b)return;
+    state.filter=b.dataset.filter;save();renderControls();renderList();
+  });
+  $("questForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const q={
+      id:Date.now(),
+      type:$("qType").value,
+      title:$("qTitle").value.trim(),
+      desc:$("qDesc").value.trim(),
+      xp:clamp($("qXp").value,5,500),
+      effort:clamp($("qEffort").value,1,10),
+      load:clamp($("qLoad").value,1,10),
+      importance:clamp($("qImportance").value,1,10),
+      future:clamp($("qFuture").value,1,10),
+      done:false
+    };
+    if(!q.title)return;
+    state.quests.unshift(q);save();closeModal();render();toast("Neue Quest ins Questlog aufgenommen.");
+  });
+  $("resetBtn").addEventListener("click",()=>{
+    if(!confirm("Questlog wirklich auf die Startversion zurücksetzen?")) return;
+    localStorage.removeItem("questlog_v01"); location.reload();
+  });
+
+  function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
+  let toastTimer;
+  function toast(msg){
+    clearTimeout(toastTimer);$("toast").textContent=msg;$("toast").classList.add("show");
+    toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2200);
+  }
+  render();
+})();
+</script>
+</body>
+</html>
